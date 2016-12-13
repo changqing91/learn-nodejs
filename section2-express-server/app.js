@@ -5,6 +5,7 @@ var handlebars = require('express3-handlebars')
 	.create({ defaultLayout: 'main'});
 var fortune = require('./lib/fortune.js');
 
+app.disable('x-powered-by'); //非常重视安全的 服务器经常忽略此信息，甚至提供虚假信息
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 app.set('port', process.env.PORT || 3000);
@@ -24,7 +25,9 @@ app.use(function(req, res, next) {
 app.get('/', function(req, res) {
 	// res.type('text/plain');
 	// res.send('Meadowlark Travle');
-	res.render('home');
+	res.render('home', {
+		layout: 'custom'  // 默认值是custom，null代表不适用layouts里面的模板
+	});
 });
 
 app.get('/about', function(req, res) {
@@ -45,6 +48,7 @@ app.get('/tours/request-group-rate', function(req, res) {
 });
 
 // 404 catch-all处理器(中间件)
+// 放在路由方法结尾
 app.use(function(req, res) {
 	// res.type('text/plain');
 	res.status(404);
@@ -53,12 +57,14 @@ app.use(function(req, res) {
 });
 
 // 500错误处理器(中间件)
+// 这应该出现在所有路由方法的结尾
+// 需要注意的是，即使你不需要一个 " 下一步 " 方法
+// 它也必须包含，以便 Express 将它识别为一个错误处理程序 app.use(function(err, req, res, next){
 app.use(function(err, req, res, next) {
 	console.error(err.stack);
 	// res.type('text/plain');
-	res.status(500);
+	res.status(500).render('500');
 	// res.send('500 - Server Error');
-	res.render('500');
 });
 
 app.listen(app.get('port'), function() {

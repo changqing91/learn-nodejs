@@ -41,3 +41,14 @@ LinkChecker(http://wummel.github.io/linkchecker/)
 ```
 linkchecker http://localhost:3000
 ```
+
+##使用Grunt代替手动命令
+```
+sudo npm install -g grunt-cli
+npm install --save-dev grunt
+npm install --save-dev grunt-cafe-mocha
+npm install --save-dev grunt-contrib-jshint
+npm install --save-dev grunt-exec
+
+grunt
+```
