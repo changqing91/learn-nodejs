@@ -22,7 +22,7 @@ visit url with parameter 'test=1'
 ###crosspage test:
 ```
 npm install --save-dev zombie
-mocha -u tdd -R spec qa/tests-crosspage.js 2>/dev/null
+mocha -u tdd -R spec qa/tests-crosspage.js 2>/dev/null      这里有个坑，第一个用例跑不通，感觉是zombie的问题
 ```
 
 ###unitest:
