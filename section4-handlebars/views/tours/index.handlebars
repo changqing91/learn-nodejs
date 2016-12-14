@@ -1,0 +1,92 @@
+<!-- 为了告诉你有section这个东西 -->
+{{#section 'handlebarjs'}}
+<script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.3.0/handlebars.min.js"></script>
+{{/section}}
+<ul id="list">
+{{#each tours}}
+{{! I'm in a new block...and the context has changed }}
+	<li data-id="{{id}}">
+		{{name}} - <input type="text" value="{{price}}" />
+		{{#if ../currencies}}
+			({{../../currency.abbrev}})
+		{{/if}}
+		<a class="update" href="javascript:;">update</a>
+		<a class="delete" href="javascript:;">delete</a>
+	</li>
+{{/each}}
+</ul>
+{{#unless currencies}}
+	<p>All prices in {{currency.name}}.</p>
+{{/unless}}
+{{#if specialsUrl}}
+	{{! I'm in a new block...but the context hasn't changed (sortof) }}
+	<p>Check out our <a href="{{specialsUrl}}">specials!</p>
+{{else}}
+	<p>Please check back often for specials.</p>
+{{/if}}
+<p>
+{{#each currencies}}
+	<a href="#" class="currency">{{.}}</a>
+{{else}}
+	Unfortunately, we currently only accept {{currency.name}}.
+{{/each}}
+</p>
+{{{_sections.handlebarjs}}}
+<script id="listTemplate" type="text/x-handlebars-template">
+\{{#each tours}}
+	<li data-id="\{{id}}">
+		\{{name}} - <input type="text" value="\{{price}}" />
+		<a class="update" href="javascript:;">update</a>
+		<a class="delete" href="javascript:;">delete</a>
+	</li>
+\{{/each}}
+</script>
+<script>
+	$(function() {
+		$('body').delegate('.update', 'click', function() {
+			var id = $(this).parent().data('id');
+			$.ajax({
+				url: '/api/tour/' + id,
+				type: 'PUT',
+				data: JSON.stringify({
+					price: $(this).parent().find('input').val()
+				}),
+				contentType: 'application/json',
+				success: function(data) {
+					if (!data.success) return;
+					refreshList(data);
+				}
+			})
+		});
+
+		$('body').delegate('.delete', 'click', function() {
+			var id = $(this).parent().data('id');
+			$.ajax({
+				url: '/api/tour/' + id,
+				type: 'DELETE',
+				contentType: 'application/json',
+				success: function(data) {
+					if (!data.success) return;
+					refreshList(data);
+				}
+			})
+		});
+
+		function refreshList() {
+			getToursData(function(data) {
+				var tmpl = Handlebars.compile(
+					$('#listTemplate').html());
+				$('#list').html(tmpl({ tours: data }));
+			})
+		}
+
+		function getToursData(cb) {
+			$.ajax({
+				url: '/api/tours',
+				type: 'get',
+				contentType: 'application/json',
+				success: cb
+			})
+		}
+	});
+</script>
